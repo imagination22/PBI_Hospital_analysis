@@ -1,0 +1,32 @@
+	 EXEC bronze.load_bronze;
+	Select * from 	Bronze.Patient
+	Select * from    Bronze.Department
+	Select * from    Bronze.Doctor
+	Select * from    Bronze.Appointment
+	Select * from    Bronze.Surgery
+	Select * from    Bronze.Room
+	Select * from    Bronze.Bed 
+	Select * from    Bronze.Billing
+	Select * from    Bronze.MedicalStock
+	Select * from    Bronze.MedicalTest
+	Select * from    Bronze.PatientTest
+	Select * from    Bronze.SatisfactionScore
+	Select * from    Bronze.Staff
+	Select * from    Bronze.Supplier
+	Select * from    Bronze.medicine_patient
+
+	Select * from 	Silver.Patient
+	Select * from    Silver.Department
+	Select * from    Silver.Doctor
+	Select * from    Silver.Appointment
+	Select * from    Silver.Surgery
+	Select * from    Silver.Room
+	Select * from    Silver.Bed 
+	Select * from    Silver.Billing
+	Select * from    Silver.MedicalStock
+	Select * from    Silver.MedicalTest
+	Select * from    Silver.PatientTest
+	Select * from    Silver.SatisfactionScore
+	Select * from    Silver.Staff
+	Select * from    Silver.Supplier
+	Select * from    Silver.medicine_patient
