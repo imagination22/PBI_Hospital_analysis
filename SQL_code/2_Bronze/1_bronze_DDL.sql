@@ -71,7 +71,7 @@ BEGIN
 		doctor_id VARCHAR(255)
 		,name VARCHAR(255)
 		,specialization VARCHAR(100)
-		,department_id VARCHAR(255)
+		,department_name VARCHAR(255)
 		,salary DECIMAL(10, 2)
 		,STATUS VARCHAR(50)
 		,availability VARCHAR(50)

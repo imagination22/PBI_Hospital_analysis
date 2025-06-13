@@ -2,7 +2,7 @@
 -- Address Table
 /*
 CREATE TABLE Silver_error.Address (
-    address_id INT PRIMARY KEY IDENTITY(1,1),
+    address_id INT  IDENTITY(1,1),
     address NVARCHAR(255),
     city NVARCHAR(100) default Null ,
     state NVARCHAR(100),
@@ -24,7 +24,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Patient (
-		patient_id VARCHAR(255) PRIMARY KEY
+		patient_id VARCHAR(255) 
 		,name VARCHAR(255)
 		,age INT
 		,gender VARCHAR(10)
@@ -55,7 +55,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Department (
-		department_id VARCHAR(255) PRIMARY KEY
+		department_id VARCHAR(255) 
 		,name VARCHAR(255)
 		,floor INT
 		,head_doctor_id VARCHAR(255)
@@ -80,7 +80,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Doctor (
-		doctor_id VARCHAR(255) PRIMARY KEY
+		doctor_id VARCHAR(255) 
 		,name VARCHAR(255)
 		,specialization VARCHAR(100)
 		,department_id VARCHAR(255)
@@ -128,7 +128,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Appointment (
-		appointment_id VARCHAR(255) PRIMARY KEY
+		appointment_id VARCHAR(255) 
 		,patient_id VARCHAR(255)
 		,doctor_id VARCHAR(255)
 		,appointment_date DATE
@@ -160,7 +160,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Surgery (
-		surgery_id INT identity PRIMARY KEY
+		surgery_id INT identity 
 		,appointment_id VARCHAR(255)
 		,patient_id VARCHAR(255)
 		,doctor_id VARCHAR(255)
@@ -193,7 +193,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Room (
-		room_id VARCHAR(255) PRIMARY KEY
+		room_id VARCHAR(255) 
 		,department_id VARCHAR(255)
 		,room_type VARCHAR(50)
 		,floor INT
@@ -219,7 +219,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Bed (
-		bed_id VARCHAR(255) PRIMARY KEY
+		bed_id VARCHAR(255) 
 		,room_id VARCHAR(255)
 		,current_status VARCHAR(50)
 		,patient_id VARCHAR(255) NULL
@@ -244,7 +244,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Billing (
-		bill_id VARCHAR(255) PRIMARY KEY
+		bill_id VARCHAR(255) 
 		,patient_id VARCHAR(255)
 		,admission_date DATE
 		,discharge_date DATE
@@ -277,7 +277,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.MedicalStock (
-		medicine_id VARCHAR(255) PRIMARY KEY
+		medicine_id VARCHAR(255) 
 		,name VARCHAR(255)
 		,category VARCHAR(100)
 		,supplier_id VARCHAR(255)
@@ -306,7 +306,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.MedicalTest (
-		test_id VARCHAR(255) PRIMARY KEY
+		test_id VARCHAR(255) 
 		,test_name VARCHAR(255)
 		,category VARCHAR(100)
 		,department_id VARCHAR(255)
@@ -331,7 +331,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.PatientTest (
-		patient_test_id VARCHAR(255) PRIMARY KEY
+		patient_test_id VARCHAR(255) 
 		,patient_id VARCHAR(255)
 		,test_id VARCHAR(255)
 		,doctor_id VARCHAR(255)
@@ -363,7 +363,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.SatisfactionScore (
-		satisfaction_id VARCHAR(255) PRIMARY KEY
+		satisfaction_id VARCHAR(255) 
 		,patient_id VARCHAR(255)
 		,doctor_id VARCHAR(255)
 		,rating INT
@@ -390,7 +390,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Staff (
-		staff_id VARCHAR(255) PRIMARY KEY
+		staff_id VARCHAR(255) 
 		,name VARCHAR(255)
 		,department_id VARCHAR(255)
 		,ROLE VARCHAR(100)
@@ -418,7 +418,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.Supplier (
-		supplier_id VARCHAR(255) PRIMARY KEY
+		supplier_id VARCHAR(255) 
 		,name VARCHAR(255)
 		,contact_person VARCHAR(255)
 		,phone VARCHAR(20)
@@ -465,7 +465,7 @@ END
 ELSE
 BEGIN
 	CREATE TABLE Silver_error.medicine_patient (
-		med_patient_id INT identity PRIMARY KEY
+		med_patient_id INT identity 
 		,patient_id VARCHAR(255)
 		,medicine VARCHAR(255)
 		,Quantity INT
