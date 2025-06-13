@@ -359,5 +359,211 @@ or patient_id not in (select distinct patient_id from bronze.Patient)
 
    /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
 
+   Select * from bronze.room
+   select * from Silver.room
+   Select * from silver.Department
+   insert into Silver.room
+   (
+   room_id
+,department_id
+,room_type
+,floor
+,capacity
+,STATUS
+,daily_charges
+,avg_monthly_maintenance
+   )
+   Select 
+room_id
+,department_id
+,room_type
+,floor
+,capacity
+,STATUS
+,daily_charges
+,avg_monthly_maintenance
+   
+   from bronze.room
+   where department_id in (select department_id from silver.Department)
+
+
+   insert into Silver_error.room
+   (
+   room_id
+,department_id
+,room_type
+,floor
+,capacity
+,STATUS
+,daily_charges
+,avg_monthly_maintenance
+   )
+   Select 
+room_id
+,department_id
+,room_type
+,floor
+,capacity
+,STATUS
+,daily_charges
+,avg_monthly_maintenance
+   from bronze.room
+   where department_id not  in (select department_id from silver.Department)
 
       /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+
+	  Select * from bronze.Bed
+	  select * from silver.bed
+
+
+	  insert into silver.bed(
+	  bed_id
+,room_id
+,current_status
+,patient_id
+,occupation_start_time
+,occupation_end_time
+	  )
+	  select 
+	  bed_id
+,room_id
+,current_status
+, case when patient_id ='null' then NULL
+		else patient_id end  as patient_id
+,case when 
+	occupation_start_time ='null' then NULL
+		WHEN  LEN(trim(occupation_start_time)) != 10 and LEN(trim(occupation_start_time)) != 8 and LEN(trim(occupation_start_time)) != 9 THEN NULL
+				ELSE CAST(occupation_start_time AS date)
+	end as occupation_start_time
+,case when 
+	occupation_end_time ='null' then NULL
+		WHEN  LEN(trim(occupation_end_time)) != 10 and LEN(trim(occupation_end_time)) != 8 and LEN(trim(occupation_end_time)) != 9 THEN NULL
+				ELSE CAST(occupation_end_time AS date)
+	end as occupation_end_time
+from bronze.Bed
+	where room_id in (select distinct room_id from silver.Room)  
+
+
+	insert into silver_error.bed(
+	  bed_id
+,room_id
+,current_status
+,patient_id
+,occupation_start_time
+,occupation_end_time
+	  )
+		  select 
+	  bed_id
+,room_id
+,current_status
+, case when patient_id ='null' then NULL
+		else patient_id end  as patient_id
+,case when 
+	occupation_start_time ='null' then NULL
+		WHEN  LEN(trim(occupation_start_time)) != 10 and LEN(trim(occupation_start_time)) != 8 and LEN(trim(occupation_start_time)) != 9 THEN NULL
+				ELSE CAST(occupation_start_time AS date)
+	end as occupation_start_time
+,case when 
+	occupation_end_time ='null' then NULL
+		WHEN  LEN(trim(occupation_end_time)) != 10 and LEN(trim(occupation_end_time)) != 8 and LEN(trim(occupation_end_time)) != 9 THEN NULL
+				ELSE CAST(occupation_end_time AS date)
+	end as occupation_end_time
+from bronze.Bed
+	where room_id not  in (select distinct room_id from silver.Room) 
+
+	  /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+	  Select * from bronze.Billing
+	  select * from silver.Billing
+
+	  insert into silver.Billing(
+	  bill_id
+,patient_id
+,admission_date
+,discharge_date
+,room_charges
+,surgery_charges
+,medicine_charges
+,test_charges
+,doctor_fees
+,other_charges
+,total_amount
+,discount
+,amount_paid
+,payment_status
+,payment_method
+	  )
+	  select bill_id
+,patient_id
+,case when 
+	admission_date ='null' then NULL
+		WHEN  LEN(trim(admission_date)) != 10 and LEN(trim(admission_date)) != 8 and LEN(trim(admission_date)) != 9 THEN NULL
+				ELSE CAST(admission_date AS date) end as admission_date
+
+,case when 
+	discharge_date ='null' then NULL
+		WHEN  LEN(trim(discharge_date)) != 10 and LEN(trim(discharge_date)) != 8 and LEN(trim(discharge_date)) != 9 THEN NULL
+				ELSE CAST(discharge_date AS date) end as discharge_date
+
+
+,room_charges
+,surgery_charges
+,medicine_charges
+,test_charges
+,doctor_fees
+,other_charges
+,total_amount
+,discount
+,amount_paid
+,payment_status
+,payment_method
+from bronze.Billing
+where patient_id in (select distinct patient_id from silver.Patient)
+
+
+
+
+	   insert into silver.Billing(
+	  bill_id
+,patient_id
+,admission_date
+,discharge_date
+,room_charges
+,surgery_charges
+,medicine_charges
+,test_charges
+,doctor_fees
+,other_charges
+,total_amount
+,discount
+,amount_paid
+,payment_status
+,payment_method
+	  )
+	  select bill_id
+,patient_id
+,case when 
+	admission_date ='null' then NULL
+		WHEN  LEN(trim(admission_date)) != 10 and LEN(trim(admission_date)) != 8 and LEN(trim(admission_date)) != 9 THEN NULL
+				ELSE CAST(admission_date AS date) end as admission_date
+
+,case when 
+	discharge_date ='null' then NULL
+		WHEN  LEN(trim(discharge_date)) != 10 and LEN(trim(discharge_date)) != 8 and LEN(trim(discharge_date)) != 9 THEN NULL
+				ELSE CAST(discharge_date AS date) end as discharge_date
+
+
+,room_charges
+,surgery_charges
+,medicine_charges
+,test_charges
+,doctor_fees
+,other_charges
+,total_amount
+,discount
+,amount_paid
+,payment_status
+,payment_method
+from bronze.Billing
+where patient_id not in (select distinct patient_id from silver.Patient)
+
+ /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
