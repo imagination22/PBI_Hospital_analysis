@@ -48,3 +48,9 @@ GO
 
 CREATE SCHEMA gold;
 GO
+
+CREATE SCHEMA silver_error;
+GO
+
+
+
