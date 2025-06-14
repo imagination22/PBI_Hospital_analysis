@@ -21,8 +21,6 @@ Since this is a small project to demonstarte DWH concepts and SQL skills , we ar
 
 */
 
-
-
 USE master;
 GO
 
@@ -50,8 +48,3 @@ GO
 
 CREATE SCHEMA gold;
 GO
-
-CREATE SCHEMA silver_error;
-GO
-
-

@@ -1,3 +1,35 @@
+/*
+===============================================================================
+Stored Procedure: Load Bronze Layer (Source -> Bronze)
+===============================================================================
+Script Purpose:
+    This stored procedure loads data into the 'bronze' schema from external CSV files. 
+    It performs the following actions:
+    - Truncates the bronze tables before loading data.
+    - Uses the `BULK INSERT` command to load data from csv Files to bronze tables.
+
+Parameters:
+    None. 
+	  This stored procedure does not accept any parameters or return any values.
+
+Usage Example:
+    EXEC bronze.load_bronze;
+Source : 
+	C:\Users\Lenovo\OneDrive\Desktop\Repository\SQL_DWH\SQL_DWH\Datawarehouse\source_csv\
+	execute bronze.load_bronze 
+===============================================================================
+*/
+CREATE OR ALTER PROCEDURE Silver.load_Silver AS
+BEGIN
+	DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME; 
+	BEGIN TRY
+
+
+
+		SET @batch_start_time = GETDATE();
+		
+		SET @start_time = GETDATE();
+/************************************************************************************************************/
 /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
 insert into silver.Patient
 (
@@ -270,10 +302,7 @@ ALTER TABLE Silver.Doctor CHECK CONSTRAINT ALL;
    or patient_id not  in (select patient_id from bronze.Patient)
 
    /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
-   Select * from bronze.Surgery
-   where appointment_id = 'APP004'
 
-   Select * from silver.Surgery
 insert into silver.Surgery
 (
 appointment_id
@@ -315,7 +344,6 @@ and doctor_id in (select distinct doctor_id from bronze.Doctor)
 and patient_id in (select distinct patient_id from bronze.Patient)
 
 
-   Select * from silver_error.Surgery
 
 insert into silver_error.Surgery
 (
@@ -359,9 +387,7 @@ or patient_id not in (select distinct patient_id from bronze.Patient)
 
    /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
 
-   Select * from bronze.room
-   select * from Silver.room
-   Select * from silver.Department
+
    insert into Silver.room
    (
    room_id
@@ -411,9 +437,6 @@ room_id
    where department_id not  in (select department_id from silver.Department)
 
       /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
-
-	  Select * from bronze.Bed
-	  select * from silver.bed
 
 
 	  insert into silver.bed(
@@ -472,8 +495,7 @@ from bronze.Bed
 	where room_id not  in (select distinct room_id from silver.Room) 
 
 	  /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
-	  Select * from bronze.Billing
-	  select * from silver.Billing
+
 
 	  insert into silver.Billing(
 	  bill_id
@@ -565,5 +587,460 @@ where patient_id in (select distinct patient_id from silver.Patient)
 ,payment_method
 from bronze.Billing
 where patient_id not in (select distinct patient_id from silver.Patient)
+ /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+
+
+ insert into Silver.Supplier
+ (
+ supplier_id
+,name
+,contact_person
+,phone
+,email
+,address
+,city
+,landmark
+,pincode
+,STATE
+,contract_start
+,contract_end
+ )
+  select 
+  trim(upper(supplier_id))
+,name
+,contact_person
+,phone
+,email
+,CASE 
+    WHEN address LIKE '%"%' OR address LIKE '%,%' THEN 
+      trim(REPLACE(REPLACE(address, '"', ''), ',', ''))
+    ELSE 
+      trim(address)
+  END AS address
+,city
+,CASE 
+    WHEN landmark LIKE '%"%' OR landmark LIKE '%,%' THEN 
+      trim(REPLACE(REPLACE(landmark, '"', ''), ',', ''))
+    ELSE 
+      trim(landmark)
+  END AS landmark
+,pincode
+,STATE
+,case when 
+	contract_start ='null' then NULL
+		WHEN  LEN(trim(contract_start)) != 10 and LEN(trim(contract_start)) != 8 and LEN(trim(contract_start)) != 9 THEN NULL
+				ELSE CAST(contract_start AS date) end as contract_start
+,case when 
+	contract_end ='null' then NULL
+		WHEN  LEN(trim(contract_end)) != 10 and LEN(trim(contract_end)) != 8 and LEN(trim(contract_end)) != 9 THEN NULL
+				ELSE CAST(contract_end AS date) end as contract_end
+  from bronze.Supplier
 
  /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+ 
+
+ insert into Silver.MedicalStock
+ (
+ medicine_id
+,name
+,category
+,supplier_id
+,cost_price
+,unit_price
+,stock_quantity
+,expiry_date
+,manufacturing_date
+,batch_number
+,reorder_level
+ )
+ select 
+ trim(upper(medicine_id))
+,name
+,category
+,trim(upper(supplier_id))
+,cost_price
+,unit_price
+,stock_quantity
+,case when 
+	expiry_date ='null' then NULL
+		WHEN  LEN(trim(expiry_date)) != 10 and LEN(trim(expiry_date)) != 8 and LEN(trim(expiry_date)) != 9 THEN NULL
+				ELSE CAST(expiry_date AS date) end as expiry_date
+,case when 
+	manufacturing_date ='null' then NULL
+		WHEN  LEN(trim(manufacturing_date)) != 10 and LEN(trim(manufacturing_date)) != 8 and LEN(trim(manufacturing_date)) != 9 THEN NULL
+				ELSE CAST(manufacturing_date AS date) end as manufacturing_date
+,trim(upper(batch_number))
+,reorder_level
+ from bronze.MedicalStock
+ where supplier_id in (select supplier_id from silver.Supplier)
+
+
+
+
+ insert into silver_error.MedicalStock
+ (
+ medicine_id
+,name
+,category
+,supplier_id
+,cost_price
+,unit_price
+,stock_quantity
+,expiry_date
+,manufacturing_date
+,batch_number
+,reorder_level
+ )
+ select 
+ trim(upper(medicine_id))
+,name
+,category
+,trim(upper(supplier_id))
+,cost_price
+,unit_price
+,stock_quantity
+,case when 
+	expiry_date ='null' then NULL
+		WHEN  LEN(trim(expiry_date)) != 10 and LEN(trim(expiry_date)) != 8 and LEN(trim(expiry_date)) != 9 THEN NULL
+				ELSE CAST(expiry_date AS date) end as expiry_date
+,case when 
+	manufacturing_date ='null' then NULL
+		WHEN  LEN(trim(manufacturing_date)) != 10 and LEN(trim(manufacturing_date)) != 8 and LEN(trim(manufacturing_date)) != 9 THEN NULL
+				ELSE CAST(manufacturing_date AS date) end as manufacturing_date
+,trim(upper(batch_number))
+,reorder_level
+ from bronze.MedicalStock
+ where supplier_id not in (select supplier_id from silver.Supplier)
+  /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+
+	insert into silver.MedicalTest(
+test_id
+,test_name
+,category
+,department_id
+,cost
+,duration
+,fasting_required
+	)
+  Select 
+  UPPER(TRIM(test_id))
+,test_name
+,category
+,UPPER(TRIM(department_id))
+,cost
+,duration
+,CASE 
+				WHEN UPPER(TRIM(fasting_required)) = 'Y' THEN 'YES'
+				WHEN UPPER(TRIM(fasting_required)) = 'N' THEN 'NO'
+				WHEN UPPER(TRIM(fasting_required)) = 'YES' THEN 'YES'
+				WHEN UPPER(TRIM(fasting_required)) = 'NO' THEN 'NO'
+				ELSE 'n/a'
+			END AS fasting_required
+
+  from bronze.MedicalTest
+  where department_id in (select department_id from silver.Department)
+
+
+  insert into silver_error.MedicalTest(
+test_id
+,test_name
+,category
+,department_id
+,cost
+,duration
+,fasting_required
+	)
+      Select 
+  UPPER(TRIM(test_id))
+,test_name
+,category
+,UPPER(TRIM(department_id))
+,cost
+,duration
+,CASE 
+				WHEN UPPER(TRIM(fasting_required)) = 'Y' THEN 'YES'
+				WHEN UPPER(TRIM(fasting_required)) = 'N' THEN 'NO'
+				WHEN UPPER(TRIM(fasting_required)) = 'YES' THEN 'YES'
+				WHEN UPPER(TRIM(fasting_required)) = 'NO' THEN 'NO'
+				ELSE 'n/a'
+			END AS fasting_required
+
+  from bronze.MedicalTest
+  where department_id not in (select department_id from silver.Department)
+
+    /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+	
+
+	insert into silver.PatientTest
+	(
+	patient_test_id
+,patient_id
+,test_id
+,doctor_id
+,test_date
+,result_date
+,STATUS
+,result
+,result_notes
+,amount
+,payment_method
+,discount
+	)
+
+		Select 
+	trim(upper(	patient_test_id))
+,trim(upper(	patient_id))
+,trim(upper(	test_id))
+,trim(upper(	doctor_id))
+,case when 
+	test_date ='null' then NULL
+		WHEN  LEN(trim(test_date)) != 10 and LEN(trim(test_date)) != 8 and LEN(trim(test_date)) != 9 THEN NULL
+				ELSE CAST(test_date AS date) end as test_date
+
+,case when 
+	result_date ='null' then NULL
+		WHEN  LEN(trim(result_date)) != 10 and LEN(trim(result_date)) != 8 and LEN(trim(result_date)) != 9 THEN NULL
+				ELSE CAST(result_date AS date) end as result_date
+,STATUS
+,result
+,result_notes
+,amount
+,payment_method
+,case when discount is null then 0.0
+	when discount = 'null' or discount = 'Null' or discount = 'NULL' then 0.0
+	else cast(discount as decimal(10,2)) end as 
+discount
+		from bronze.PatientTest
+	where patient_id in (select patient_id from silver.Patient)
+	and doctor_id in (select doctor_id from silver.Doctor)
+	and test_id in (select test_id from silver.MedicalTest)
+
+
+
+
+	insert into silver_error.PatientTest
+	(
+	patient_test_id
+,patient_id
+,test_id
+,doctor_id
+,test_date
+,result_date
+,STATUS
+,result
+,result_notes
+,amount
+,payment_method
+,discount
+	)
+
+		Select 
+	trim(upper(	patient_test_id))
+,trim(upper(	patient_id))
+,trim(upper(	test_id))
+,trim(upper(	doctor_id))
+,case when 
+	test_date ='null' then NULL
+		WHEN  LEN(trim(test_date)) != 10 and LEN(trim(test_date)) != 8 and LEN(trim(test_date)) != 9 THEN NULL
+				ELSE CAST(test_date AS date) end as test_date
+
+,case when 
+	result_date ='null' then NULL
+		WHEN  LEN(trim(result_date)) != 10 and LEN(trim(result_date)) != 8 and LEN(trim(result_date)) != 9 THEN NULL
+				ELSE CAST(result_date AS date) end as result_date
+
+,STATUS
+,result
+,result_notes
+,amount
+,payment_method
+,case when discount is null then 0.0
+	when discount = 'null' or discount = 'Null' or discount = 'NULL' then 0.0
+	else cast(discount as decimal(10,2)) end as 
+discount
+		from bronze.PatientTest
+	where patient_id not in (select patient_id from silver.Patient)
+	or doctor_id not in (select doctor_id from silver.Doctor)
+	or test_id not in (select test_id from silver.MedicalTest)
+
+
+	    /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+
+
+insert into silver.SatisfactionScore(
+satisfaction_id
+,patient_id
+,doctor_id
+,rating
+,feedback
+,DATE
+,department_name
+)
+Select 
+satisfaction_id
+,patient_id
+,doctor_id
+,rating
+,feedback
+,case when 
+	DATE ='null' then NULL
+		WHEN  LEN(trim(DATE)) != 10 and LEN(trim(DATE)) != 8 and LEN(trim(DATE)) != 9 THEN NULL
+				ELSE CAST(DATE AS date) end as DATE
+,department_name
+from bronze.SatisfactionScore where  patient_id in (select patient_id from silver.Patient)
+and doctor_id in (select doctor_id from silver.Doctor)
+and department_name in (select name  from silver.Department)
+
+insert into silver_error.SatisfactionScore(
+satisfaction_id
+,patient_id
+,doctor_id
+,rating
+,feedback
+,DATE
+,department_name
+)
+Select 
+satisfaction_id
+,patient_id
+,doctor_id
+,rating
+,feedback
+,case when 
+	DATE ='null' then NULL
+		WHEN  LEN(trim(DATE)) != 10 and LEN(trim(DATE)) != 8 and LEN(trim(DATE)) != 9 THEN NULL
+				ELSE CAST(DATE AS date) end as DATE
+,department_name
+from bronze.SatisfactionScore where  patient_id not in (select patient_id from silver.Patient)
+or doctor_id not in (select doctor_id from silver.Doctor)
+or department_name not in (select name  from silver.Department)
+
+ /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+
+
+  insert into silver.Staff(
+  staff_id
+,name
+,department_id
+,ROLE
+,salary
+
+,joining_date
+,shift
+,phone
+,email
+,address
+  )
+   Select 
+  staff_id
+,name
+,department_id
+,ROLE
+,salary
+
+,case when 
+	joining_date ='null' then NULL
+		WHEN  LEN(trim(joining_date)) != 10 and LEN(trim(joining_date)) != 8 and LEN(trim(joining_date)) != 9 THEN NULL
+				ELSE CAST(joining_date AS date) end as joining_date
+,shift
+,phone
+,email
+,address
+   
+   from bronze.Staff
+   where department_id in (select department_id from silver.Department)
+ 
+ insert into silver_error.Staff(
+  staff_id
+,name
+,department_id
+,ROLE
+,salary
+,joining_date
+,shift
+,phone
+,email
+,address
+  )
+  Select 
+  staff_id
+,name
+,department_id
+,ROLE
+,salary
+
+,case when 
+	joining_date ='null' then NULL
+		WHEN  LEN(trim(joining_date)) != 10 and LEN(trim(joining_date)) != 8 and LEN(trim(joining_date)) != 9 THEN NULL
+				ELSE CAST(joining_date AS date) end as joining_date
+,shift
+,phone
+,email
+,address
+   
+   from bronze.Staff
+   where department_id not  in (select department_id from silver.Department)
+
+
+  /*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+
+
+
+
+  insert into silver.medicine_patient
+  (
+  
+patient_id
+,medicine
+,Quantity
+
+,purchase_date
+  )
+   Select 
+   patient_id
+,medicine
+,Quantity
+,case when 
+	purchase_date ='null' then NULL
+		WHEN  LEN(trim(purchase_date)) != 10 and LEN(trim(purchase_date)) != 8 and LEN(trim(purchase_date)) != 9 THEN NULL
+				ELSE CAST(purchase_date AS date) end as purchase_date
+   
+   from bronze.medicine_patient
+where patient_id in (select patient_id from silver.Patient)
+
+  insert into silver_error.medicine_patient
+    (
+ 
+patient_id
+,medicine
+,Quantity
+,purchase_date
+  )
+     Select patient_id
+,medicine
+,Quantity
+,case when 
+	purchase_date ='null' then NULL
+		WHEN  LEN(trim(purchase_date)) != 10 and LEN(trim(purchase_date)) != 8 and LEN(trim(purchase_date)) != 9 THEN NULL
+				ELSE CAST(purchase_date AS date) end as purchase_date
+    from bronze.medicine_patient
+where patient_id not in (select patient_id from silver.Patient)
+
+/*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+ 
+		SET @batch_end_time = GETDATE();
+	
+		PRINT 'Loading Bronze Layer is Completed';
+        PRINT '   - Total Load Duration: ' + CAST(DATEDIFF(SECOND, @batch_start_time, @batch_end_time) AS NVARCHAR) + ' seconds';
+		
+
+	END TRY
+	BEGIN CATCH
+		PRINT '=========================================='
+		PRINT 'ERROR OCCURED DURING LOADING BRONZE LAYER'
+		PRINT 'Error Message' + ERROR_MESSAGE();
+		PRINT 'Error Message' + CAST (ERROR_NUMBER() AS NVARCHAR);
+		PRINT 'Error Message' + CAST (ERROR_STATE() AS NVARCHAR);
+		PRINT '=========================================='
+	END CATCH
+END

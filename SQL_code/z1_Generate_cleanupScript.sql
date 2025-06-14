@@ -15,14 +15,14 @@ INNER JOIN sys.columns parent_col ON fk_col.parent_object_id = parent_col.object
 INNER JOIN sys.tables referenced_tab ON fk.referenced_object_id = referenced_tab.object_id
 INNER JOIN sys.columns referenced_col ON fk_col.referenced_object_id = referenced_col.object_id 
     AND fk_col.referenced_column_id = referenced_col.column_id
-WHERE sch.name = 'Silver'
+WHERE sch.name = 'Silver' and parent_tab.name = 'medicine_patient'
 ORDER BY SchemaName, ReferencingTable, ForeignKeyName;
 
 --list all table  in silver layer
 
 SELECT name AS TableName
 FROM sys.tables
-WHERE schema_name(schema_id) = 'Silver'
+WHERE schema_name(schema_id) = 'gOLD'
 ORDER BY name;
 
 
